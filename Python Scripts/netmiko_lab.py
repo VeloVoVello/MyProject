@@ -19,7 +19,8 @@ def get_credentials():
         password = getpass('Enter LDAP password: ')
         password_verify = getpass('Retype your password: ')
         if password != password_verify:
-            print('Passwords do not match')
+            print('Passwords do not match. Try again.')
+
 
 
 def ipRange(start_ip, end_ip):
