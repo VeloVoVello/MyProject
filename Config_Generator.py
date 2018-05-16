@@ -16,7 +16,7 @@ aruba = {
 'device_type': 'hp_procurve',
 'ip': '10.81.4.67',
 'username': '60052959',
-'password': 'hGf!64235*'
+'password': 'password'
 }
 
 ssh = ConnectHandler(**aruba)

@@ -67,7 +67,7 @@ for device in devices:
         #print('Authentication with LDAP failed.')
         try:
             net_connect = Netmiko(ip=device, device_type='hp_procurve',
-                                  username='supervisor', password='73!nsw0028!6')
+                                  username='supervisor', password='password')
             print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
             print(net_connect.send_command('display version | inc Processor'))
             print("Authenticated with supervisor\n")
@@ -77,7 +77,7 @@ for device in devices:
             #print('Authentication with supervisor failed.')
             try:
                 net_connect = Netmiko(ip=device, device_type='hp_procurve',
-                                      username='supervisor@system', password='73!nsw0028!6')
+                                      username='supervisor@system', password='password')
                 print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
                 print(net_connect.send_command('display version | inc Processor'))
                 print("Authenticated with supervisor@system\n")
