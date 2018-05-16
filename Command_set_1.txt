@@ -1,0 +1,5 @@
+config terminal
+no vlan 150
+quit
+quit
+write mem
