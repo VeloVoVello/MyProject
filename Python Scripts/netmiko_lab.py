@@ -2,13 +2,13 @@
 
 from netmiko import Netmiko
 import time
-from getpass import getpass
+import getpass
 
 def get_credentials():
-    username = input('Enter LDAP login: ')
+    username = input('Login: ')
     password = None
     while not password:
-        password = getpass('Enter LDAP password: ')
+        password = getpass('Password: ')
         password_verify = getpass('Retype your password: ')
         if password != password_verify:
             print('Passwords do not match. Try again.')
@@ -35,55 +35,57 @@ def ipRange(start_ip, end_ip):
 # Welcome to the program
 
 print('Welcome to the Network Device Configurator')
-time.sleep(1)
-print('The program pick up your LDAP credentials,\n'
-      'SSH devices from the pool and execute command set')
-time.sleep(1)
-print('Authentification is performed in such priority: '
-      'LDAP(Radius) then Local(master password)')
+time.sleep(2)
+print('The program executes commands via SSH connection')
+print('Authentification priority order: '
+      'LDAP(Radius), then Local(master password)')
+time.sleep(2)
 
 # Get user Credentials (LDAP)
+
+print('Enter your LDAP credentials')
 ldapuser, ldappasswd = get_credentials()
 
 # Set the device pool, create deice list
+
 start_ip = input('Enter the first device IP: ')
 end_ip = input('Enter the last device IP: ')
 devices = ipRange(start_ip, end_ip)
 
+# Get the command to perform
+
+cmd = input('Enter the command you want to perform: ')
+print('\nConnecting...')
+
 # The CORE of the program
+
 for device in devices:
     try:
         net_connect = Netmiko(ip=device, device_type='hp_procurve',
-                              username=ldap, password=ldappasswd)
+                              username=ldapuser, password=ldappasswd)
+        print("\nAuthenticated with LDAP credentials")
         print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
-        print(net_connect.send_command('display version | inc Processor'))
-        print("Authenticated with LDAP\n")
-        #print(">>>>>>>>> End <<<<<<<<<\n")
+        print(net_connect.send_command(cmd))
+        print(">>>>>>>>> End <<<<<<<<<\n")
         net_connect.disconnect()
     except:
-        #print('Authentication with LDAP failed.')
         try:
-            net_connect = Netmiko(ip=device, device_type='hp_procurve',
-                                  username='supervisor', password='password')
-            print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
-            print(net_connect.send_command('display version | inc Processor'))
-            print("Authenticated with supervisor\n")
-            #print(">>>>>>>>> End <<<<<<<<<\n")
-            net_connect.disconnect()
-        except:
-            #print('Authentication with supervisor failed.')
-            try:
+            print('LDAP authentication failed')
+            if localuser is True:
                 net_connect = Netmiko(ip=device, device_type='hp_procurve',
-                                      username='supervisor@system', password='password')
+                                      username='localuser', password='localpasswd')
+            else:
+                print('Enter your Local credentials')
+                localuser, localpasswd = get_credentials()
+
+                print("Authenticated with local credentials")
                 print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
-                print(net_connect.send_command('display version | inc Processor'))
-                print("Authenticated with supervisor@system\n")
-                #print(">>>>>>>>> End <<<<<<<<<\n")
+                print(net_connect.send_command(cmd))
+                print(">>>>>>>>> End <<<<<<<<<\n")
                 net_connect.disconnect()
-            except:
-                #print("Unable to connect with supervisor@system!")
-                print("Unable to connect device {}\n".format(device))
-                continue
+        except:
+            print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
+            continue
 
 #command = ssh.send_config_from_file('config.txt')
 
