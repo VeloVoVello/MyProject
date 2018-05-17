@@ -4,14 +4,6 @@ from netmiko import Netmiko
 import time
 from getpass import getpass
 
-# Manual IP list creation
-"""
-devices = '''
-10.81.8.65
-'''.strip().splitlines()
-"""
-
-# IP list generator
 def get_credentials():
     username = input('Enter LDAP login: ')
     password = None
@@ -20,8 +12,8 @@ def get_credentials():
         password_verify = getpass('Retype your password: ')
         if password != password_verify:
             print('Passwords do not match. Try again.')
-
-
+            password = None
+    return username, password
 
 def ipRange(start_ip, end_ip):
     start = list(map(int, start_ip.split(".")))
@@ -40,22 +32,26 @@ def ipRange(start_ip, end_ip):
 
     return devices
 
-print('Запущен скрипт для выполнения команд на сетевом оборудовании')
+# Welcome to the program
+
+print('Welcome to the Network Device Configurator')
 time.sleep(1)
+print('The program pick up your LDAP credentials,\n'
+      'SSH devices from the pool and execute command set')
+time.sleep(1)
+print('Authentification is performed in such priority: '
+      'LDAP(Radius) then Local(master password)')
 
-start_ip = input('Enter first device IP: ')
-end_ip = input('Enter last device IP: ')
-ldap = input(': ')
-ldap = getpass.getpass()
-ldappasswd = input('Введите LDAP пароль: ')
+# Get user Credentials (LDAP)
+ldapuser, ldappasswd = get_credentials()
 
+# Set the device pool, create deice list
+start_ip = input('Enter the first device IP: ')
+end_ip = input('Enter the last device IP: ')
 devices = ipRange(start_ip, end_ip)
 
-#username = raw_input("Username? ")
-#password = getpass.getpass()
-
+# The CORE of the program
 for device in devices:
-
     try:
         net_connect = Netmiko(ip=device, device_type='hp_procurve',
                               username=ldap, password=ldappasswd)
