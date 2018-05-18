@@ -1,15 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 
 from netmiko import Netmiko
 import time
 import getpass
 
 def get_credentials():
-    username = input('Login: ')
+    username = input('Username: ')
     password = None
     while not password:
-        password = getpass('Password: ')
-        password_verify = getpass('Retype your password: ')
+        password = getpass.getpass(prompt='Password: ')
+        password_verify = getpass.getpass(prompt='Retype your password: ')
         if password != password_verify:
             print('Passwords do not match. Try again.')
             password = None
@@ -55,36 +55,42 @@ devices = ipRange(start_ip, end_ip)
 # Get the command to perform
 
 cmd = input('Enter the command you want to perform: ')
-print('\nConnecting...')
+print('\nConnecting...\n')
 
 # The CORE of the program
 
 for device in devices:
     try:
+        print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
         net_connect = Netmiko(ip=device, device_type='hp_procurve',
                               username=ldapuser, password=ldappasswd)
-        print("\nAuthenticated with LDAP credentials")
-        print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
+        print("\nAuthenticated with LDAP credentials\n")
         print(net_connect.send_command(cmd))
-        print(">>>>>>>>> End <<<<<<<<<\n")
+        print("\n>>>>>>>>> End <<<<<<<<<\n")
         net_connect.disconnect()
     except:
+        print('LDAP authentication failed')
+
         try:
-            print('LDAP authentication failed')
-            if localuser is True:
+            if localuser not in locals():
+                localuser, localpasswd = get_credentials()
                 net_connect = Netmiko(ip=device, device_type='hp_procurve',
                                       username='localuser', password='localpasswd')
-            else:
-                print('Enter your Local credentials')
-                localuser, localpasswd = get_credentials()
-
-                print("Authenticated with local credentials")
                 print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
+                print("Authenticated with local credentials")
+                print(net_connect.send_command(cmd))
+                print(">>>>>>>>> End <<<<<<<<<\n")
+                net_connect.disconnect()
+            else:
+                print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
+                print("Authenticated with local credentials")
                 print(net_connect.send_command(cmd))
                 print(">>>>>>>>> End <<<<<<<<<\n")
                 net_connect.disconnect()
         except:
             print('>>>>>>>>> Device {0} <<<<<<<<<'.format(device))
+            print('Local authentication failed')
+            print(">>>>>>>>> End <<<<<<<<<\n")
             continue
 
 #command = ssh.send_config_from_file('config.txt')
