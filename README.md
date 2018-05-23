@@ -1,1 +1,2 @@
-# MyProject containes useful Python3 scripts
+# MyProject
+# Python3 scripts for Network Engineers
