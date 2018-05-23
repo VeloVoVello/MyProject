@@ -1,34 +1,21 @@
-import os
-import multiprocessing
-import subprocess
+#!/usr/bin/env python3
 
-devices = ['8.8.8.8', '4.4.4.4']
+from subprocess import Popen, DEVNULL
 
-DNULL = open(os.devnull, 'w')
+p = {} # ip -> process
+for n in range(201, 206): # start ping processes
+    ip = "81.200.248.%d" % n
+    p[ip] = Popen(['ping', '-n', '-w5', '-c3', ip], stdout=DEVNULL)
+    #NOTE: you could set stderr=subprocess.STDOUT to ignore stderr also
 
-def ping(host,mp_queue):
-    response = subprocess.call(["ping", "-c", "2", host], stdout=DNULL)
-    if response == 0:
-        print(host, 'is up!')
-        result = True
-    else:
-        print(host, 'is down!')
-        result = False
-    dostupnost = {host:result}
-    mp_queue.put(dostupnost)
-
-def worker(devices):
-    mp_queue = multiprocessing.Queue()
-    processes = []
-    for device in devices:
-        p = multiprocessing.Process(target=ping, args=(device, mp_queue))
-        processes.append(p)
-        p.start()
-    for p in processes:
-        p.join()
-    results = []
-    for p in processes:
-        results.append(mp_queue.get())
-    return results
-
-worker(devices)
+while p:
+    for ip, proc in p.items():
+        if proc.poll() is not None: # ping finished
+            del p[ip] # remove from the process list
+            if proc.returncode == 0:
+                print('%s active' % ip)
+            elif proc.returncode == 1:
+                print('%s no response' % ip)
+            else:
+                print('%s error' % ip)
+            break

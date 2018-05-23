@@ -1,3 +1,1 @@
-# MyProject
-
-# This is a test Readme file
+# MyProject containes useful Python3 scripts
