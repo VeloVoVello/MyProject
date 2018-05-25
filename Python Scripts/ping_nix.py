@@ -1,26 +1,28 @@
 '''Works ONLY in *nix'''
 
+import ipaddress
 from subprocess import Popen, DEVNULL
 
-dict = {}
-list = []
+p = {}
+net = ipaddress.ip_network('10.81.172.64/27')
+hosts = [x.compressed for x in net.hosts()]
+alive = []
 
-for n in range(65, 94):
-    ip = "10.81.4.%d" % n
-    dict[ip] = Popen(['ping', '-n', '-w5', '-c3', ip], stdout=DEVNULL)
+for i in hosts:
+    p[i] = Popen(['ping', '-n', '-w5', '-c3', i], stdout=DEVNULL)
 
-while dict:
-    for ip, proc in dict.items():
+while p:
+    for ip, proc in p.items():
         if proc.poll() is not None:
-            del dict[ip]
+            del p[ip]
             if proc.returncode == 0:
-                list.append(ip)
+                alive.append(ip)
             break
 
 
-print('\n' + str(len(list)) + ' active devices:\n')
-list = sorted(list)
+print('\n' + str(len(alive)) + ' active devices:\n')
+alive = sorted(alive)
 
-for i in list:
+for i in alive:
     print(i)
 print('\n')
