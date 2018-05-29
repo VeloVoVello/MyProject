@@ -3,8 +3,20 @@
 import ipaddress
 from subprocess import Popen, DEVNULL
 
+mag = int(input('Введите номер магазина: '))
+
+if mag <= 63:
+   x='10.81.{}.64/27'.format(str(mag*4))
+elif mag>63 and mag<=126:
+    x='10.82.{}.64/27'.format(str((mag-63)*4))
+elif mag>126 and mag<=189:
+    x='10.86.{}.64/27'.format(str((mag-126)*4))
+elif mag>189 and mag<=252:
+    x = '10.86.{}.64/27'.format(str((mag-189)*4))
+
 p = {}
-net = ipaddress.ip_network('10.81.172.64/27')
+
+net = ipaddress.ip_network(x)
 hosts = [x.compressed for x in net.hosts()]
 alive = []
 

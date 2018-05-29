@@ -1,0 +1,8 @@
+if mag <= 63:
+   x='10.81.{}.64/27'.format(str(mag*4))
+elif mag>63 and mag<=126:
+    x='10.82.{}.64/27'.format(str((mag-63)*4))
+elif mag>126 and mag<=189:
+    x='10.86.{}.64/27'.format(str((mag-126)*4))
+elif mag>189 and mag<=252:
+    x = '10.86.{}.64/27'.format(str((mag-189)*4))
