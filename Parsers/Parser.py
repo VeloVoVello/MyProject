@@ -8,3 +8,10 @@ soup = BeautifulSoup(html, 'html.parser')
 
 print(soup.prettify())
 
+# ищем все элементы
+soup.find_all('div', class_='item_table')
+
+cars = soup.find_all('div', class_='item_table')
+
+for i in soup.find_all('div', class_='item_table'):
+    print(i.get('href'))
