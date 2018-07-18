@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-url = https://www.avito.ru/moskva/avtomobili/s_probegom/honda/odyssey?radius=300&s_trg=3
+url = 'https://www.avito.ru/moskva/avtomobili/s_probegom/honda/odyssey?radius=300&s_trg=3'
 
 r = requests.get(url)
 
@@ -14,4 +14,6 @@ titles = soup.find_all(class_="item-description-title-link")
 # grab Price
 price = soup.find_all(class_="price")
 
-
+for i in titles:
+    name = i['title']
+    print(name)
