@@ -1,8 +1,8 @@
 import sys
 import json
 import ipaddress
-from netmiko import Netmiko
-from subprocess import Popen, DEVNULL
+import netmiko
+from subprocess import Popen, DEVNULL, PIPE
 
 print(len(sys.argv), sys.argv)
 
@@ -37,9 +37,7 @@ def vlan():
     elif mag > 63 and mag <= 126:
         x = '10.82.{}.64/27'.format(str((mag - 63) * 4))
     elif mag > 126 and mag <= 189:
-        x = '10.86' \
-            '' \
-            '.{}.64/27'.format(str((mag - 126) * 4))
+        x = '10.86.{}.64/27'.format(str((mag - 126) * 4))
     elif mag > 189 and mag <= 252:
         x = '10.86.{}.64/27'.format(str((mag - 189) * 4))
 
@@ -59,7 +57,7 @@ def ping():
     devices = []
     devices = vlan()
     for i in devices:
-        p[i] = Popen(['ping', '-n', '-w5', '-c3', i], stdout=DEVNULL)
+        p[i] = Popen('ping ' + i + ' -n 1', stdout=PIPE)
 
     while p:
         for ip, proc in p.items():
@@ -112,7 +110,7 @@ def execute():
     for device in devices:
         try:
             print('\n>>>>>>>>> Device {} <<<<<<<<<'.format(device))
-            net_connect = Netmiko(ip=device,
+            net_connect = ConnectHandler(ip=device,
                                   device_type='hp_procurve',
                                   username=ldapuser,
                                   password=ldappasswd)
@@ -125,14 +123,14 @@ def execute():
                                         ' не поддерживается на устройстве!\n'
                                         'Dведите пароль'
                                         ' локального администратора: ')
-                    net_connect = Netmiko(ip=device,
+                    net_connect = ConnectHandler(ip=device,
                                           device_type='hp_procurve',
                                           username='supervisor@system',
                                           password=localpasswd)
                     print(net_connect.send_command(cmd))
                     net_connect.disconnect()
                 else:
-                    net_connect = Netmiko(ip=device,
+                    net_connect = ConnectHandler(ip=device,
                                           device_type='hp_procurve',
                                           username='supervisor@system',
                                           password=localpasswd)
