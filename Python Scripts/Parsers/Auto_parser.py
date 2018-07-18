@@ -15,5 +15,15 @@ titles = soup.find_all(class_="item-description-title-link")
 price = soup.find_all(class_="price")
 
 for i in titles:
-    name = i['title']
-    print(name)
+    tit = i['title']
+    print(tit)
+
+
+for i in price:
+    one = i.text.strip().split(' ')
+    sum = int(one[0] + one[1])
+    print(sum)
+
+
+data = {'title': tit,
+        'price': sum}
