@@ -1,0 +1,2 @@
+cd C:\Users\60052959\PycharmProjects\MyProject\Python Scripts
+pyinstaller.exe --onedir --onefile --name=myprogram "C:\Users\60052959\PycharmProjects\MyProject\Python Scripts\final_win.py"
