@@ -1,5 +1,6 @@
 # Для поиска конкретной модели
 
+import os
 import csv
 import time
 import requests
@@ -14,6 +15,8 @@ title_list = []
 price_list = []
 year_list = []
 city_list = []
+
+cwd = os.getcwd()
 
 def get_soup_data(url):
     r = requests.get(url)
@@ -53,7 +56,7 @@ def write_data_lists():
         writer = csv.writer(f)
         writer.writerow(fieldnames)
         writer.writerows(zip(title_list, price_list, year_list, city_list))
-        print('CSV file is written from lists')
+        print('\nCSV file is written from lists in:\n{}'.format(cwd))
 
 def main():
     get_soup_data(url)
