@@ -1,3 +1,5 @@
+# Для поиска из фильтра по категориям (много полей)
+
 import csv
 import time
 import requests
