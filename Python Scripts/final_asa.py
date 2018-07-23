@@ -160,6 +160,8 @@ def command():
             print('Доступ на устройство {} не возможен, '
                   'следующее устройство...'.format(device))
 
+main()
 
+if __name__ == "__main__":
+    main()
 
-menu()

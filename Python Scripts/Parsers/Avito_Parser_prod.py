@@ -1,3 +1,5 @@
+# Для поиска конкретной модели
+
 import csv
 import time
 import requests
