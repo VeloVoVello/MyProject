@@ -33,6 +33,65 @@ def get_soup_data(url):
         #year_list.append(title_obj_list[-3])  # Наполнение списка year_list
         city_list.append(title_obj_list[-1])  # Наполнение списка city_list (ОК)
 
+
+
+""" 
+
+Разобраться с циклом
+
+for tag in set:
+    aTags = tag.find_all("a", {"class": "item-description-title-link"})
+    for tag in aTags:
+        print(tag.text)
+
+Отлично работает:
+
+for tag in soup.find_all(re.compile("^p")):
+    print(tag.text)
+
+м. Тушинская
+м. Южная
+м. Медведково
+м. Медведково
+м. Марьино
+м. Бабушкинская
+м. Кунцевская
+
+for tag in soup.find_all(re.compile("^span"), class_='price'):
+    print(tag.text)
+
+160 000  ₽
+210 000  ₽
+250 000  ₽
+250 000  ₽
+250 000  ₽
+150 000  ₽
+180 000  ₽
+210 000  ₽
+
+
+for tag in soup.find_all(re.compile("^a"), class_="item-description-title-link"):
+    print(tag.text.strip())
+
+Suzuki TL1000R
+Yamaha XVS 650 V-Star
+XF650 Freewind 2000гв
+Yamaha BT 1100
+Honda CB750 2006
+Honda vfr 800
+Honda XL 650
+
+for tag in soup.find_all(re.compile("^div"), class_="js-item-date c-2"):
+    print(tag.text.strip())
+    
+Вчера 23:34
+Вчера 22:18
+Вчера 22:06
+Вчера 20:57
+Вчера 20:49
+
+"""
+
     for i in prices_set:
         price_obj_raw_string = i.text.strip().replace('  ₽', '')
         price_obj_int = int(price_obj_raw_string.replace(' ', ''))
