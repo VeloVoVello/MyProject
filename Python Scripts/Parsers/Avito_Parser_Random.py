@@ -28,23 +28,25 @@ def get_soup_data(url):
     for i in titles_set:
         title_obj_list = i['title'].replace(',', '').split() # Создание раздельного списка объектов из сета наименований
         titles_list.append(title_obj_list)  # Наполнение списка titles_list
- #       title_list.append(str(title_obj_list[0]) + ' ' + str(title_obj_list[1]))  # Наполнение списка title_list
-#        year_list.append(title_obj_list[-3])  # Наполнение списка year_list
-        city_list.append(title_obj_list[-1])  # Наполнение списка city_list
+        #title_list.append(str(title_obj_list[0]) + ' ' + str(title_obj_list[1]))  # Наполнение списка title_list
+        title_list.append(i.text.strip().replace(',', ''))
+        #year_list.append(title_obj_list[-3])  # Наполнение списка year_list
+        city_list.append(title_obj_list[-1])  # Наполнение списка city_list (ОК)
 
     for i in prices_set:
         price_obj_raw_string = i.text.strip().replace('  ₽', '')
         price_obj_int = int(price_obj_raw_string.replace(' ', ''))
-        price_list.append(price_obj_int)  # Наполнение списка price_list
+        price_list.append(price_obj_int)  # Наполнение списка price_list (ОК)
 
 def write_data_lists():
 
-    with open('items_lists.csv', 'w', newline='') as f:  # write CSV from lists
-        fieldnames = ['Марка', 'Цена', 'Год', 'Город']
+    with open('items_lists_1.csv', 'w', newline='') as f:  # write CSV from lists
+        #fieldnames = ['Марка', 'Цена', 'Год', 'Город']
         writer = csv.writer(f)
-        writer.writerow(fieldnames)
-        writer.writerows(zip(title_list, price_list, year_list, city_list))
-        print('\nCSV file is written in:\n{}'.format(cwd))
+        #writer.writerow(fieldnames)
+        #writer.writerows(zip(title_list, price_list, year_list, city_list))
+        writer.writerows(zip(title_list, price_list))
+        print('\nCSV file "items_lists_1.csv" is written in:\n{}'.format(cwd))
 
 def main():
 
