@@ -67,7 +67,7 @@ def fillout():
 # Записываем данные в CSV файл
 
 def writedata():
-    with open('items.csv', 'a', newline='') as f:
+    with open('items.csv', 'w', newline='') as f:
         fieldnames = ['Наименование', 'Цена', 'Район', 'Время размещения']
         writer = csv.writer(f)
         writer.writerow(fieldnames)
