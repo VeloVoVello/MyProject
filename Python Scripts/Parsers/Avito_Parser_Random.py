@@ -7,12 +7,15 @@ from bs4 import BeautifulSoup
 
 url = 'https://www.avito.ru/moskva/mototsikly_i_mototehnika/mototsikly/kross_i_enduro?s_trg=7'
 baseurl = 'https://www.avito.ru/moskva/mototsikly_i_mototehnika/mototsikly/kross_i_enduro?p='
+http = 'https://www.avito.ru'
 
 url_list = []
 title_list = []
 price_list = []
 city_list = []
 time_list = []
+date_list = []
+href_list = []
 
 
 # Загружаем всю HTML страницу
@@ -64,14 +67,21 @@ def fillout():
         for tag in pagesoup.find_all(re.compile("^div"), class_="js-item-date c-2"):
             time_list.append(tag.text.strip())
 
+        for tag in pagesoup.select('.js-item-date'):
+            date_list.append(tag.get('data-absolute-date'))
+
+        for tag in pagesoup.select('.item-description-title-link'):
+            href = http + tag.get('href')
+            href_list.append(href)
+
 # Записываем данные в CSV файл
 
 def writedata():
     with open('items.csv', 'w', newline='') as f:
-        fieldnames = ['Наименование', 'Цена', 'Район', 'Время размещения']
+        fieldnames = ['Наименование', 'Цена', 'Район', 'Время размещения', 'Точное время', 'Ссылка']
         writer = csv.writer(f)
         writer.writerow(fieldnames)
-        writer.writerows(zip(title_list, price_list, city_list, time_list))
+        writer.writerows(zip(title_list, price_list, city_list, time_list, date_list, href_list))
 		
 def main():
     genurl(totalpages(fullsoup(url)))
