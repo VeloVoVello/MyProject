@@ -1,7 +1,9 @@
-# Для поиска из фильтра по категориям (много полей)
+# Avito multiple pages parser
+#!/usr/bin/env python3
 
 import re
 import csv
+import sys
 import requests
 from bs4 import BeautifulSoup
 
@@ -18,16 +20,18 @@ date_list = []
 href_list = []
 
 
-# Загружаем всю HTML страницу
+# Download full HTML page (with OS version determination)
 
 def fullsoup(url):
     r = requests.get(url)
-    fullsoup = BeautifulSoup(r.text, 'html.parser')
-
+    if 'win' in sys.platform.lower():
+        fullsoup = BeautifulSoup(r.text, 'html.parser')
+    else:
+        fullsoup = BeautifulSoup(r.text, 'lxml')
+        
     return fullsoup
 
-
-# Считаем количество всех URL
+# Count URL summary
 
 def totalpages(fullsoup):
     pages = fullsoup.find('div', class_='pagination-pages')
@@ -37,16 +41,14 @@ def totalpages(fullsoup):
 
     return int(totalpages)
 
-
-# Создаем список всех URL
+# URL list generator
 
 def genurl(totalpages):
     for i in range(1, totalpages + 1):
         genurl = baseurl + str(i)
         url_list.append(genurl)
 
-
-# Наполняем списки данными
+# Fill out lists with data
 
 def fillout():
 
@@ -74,7 +76,7 @@ def fillout():
             href = http + tag.get('href')
             href_list.append(href)
 
-# Записываем данные в CSV файл
+# Write out CSV file
 
 def writedata():
     with open('items.csv', 'w', newline='') as f:
@@ -87,7 +89,6 @@ def main():
     genurl(totalpages(fullsoup(url)))
     fillout()
     writedata()
-
 
 if __name__ == "__main__":
     main()
