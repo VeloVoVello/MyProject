@@ -5,13 +5,17 @@ import re
 import csv
 import sys
 import requests
+import mysql.connector
 from bs4 import BeautifulSoup
+
+password = input('Password: ')
 
 url = 'https://www.avito.ru/moskva/mototsikly_i_mototehnika/mototsikly/kross_i_enduro?s_trg=7'
 baseurl = 'https://www.avito.ru/moskva/mototsikly_i_mototehnika/mototsikly/kross_i_enduro?p='
 http = 'https://www.avito.ru'
 
 url_list = []
+id_list = []
 title_list = []
 price_list = []
 city_list = []
@@ -50,12 +54,15 @@ def genurl(totalpages):
 
 # Fill out lists with data
 
-def fillout():
+def fillists():
 
     for url in url_list:
         r = requests.get(url)
         pagesoup = BeautifulSoup(r.text, 'html.parser')
 
+        for tag in pagesoup.find_all("div", attrs={'class':'item_table'}):
+            id_list.append(tag.get('id'))
+		
         for tag in pagesoup.find_all(re.compile("^a"), class_="item-description-title-link"):
             title_list.append(tag.text.strip().replace(',', ''))
 
@@ -78,17 +85,56 @@ def fillout():
 
 # Write out CSV file
 
-def writedata():
+def writecsv():
     with open('items.csv', 'w', newline='') as f:
-        fieldnames = ['Наименование', 'Цена', 'Район', 'Время размещения', 'Точное время', 'Ссылка']
+        fieldnames = ['ID', 'Наименование', 'Цена', 'Район', 'Время размещения', 'Точное время', 'Ссылка']
         writer = csv.writer(f)
         writer.writerow(fieldnames)
-        writer.writerows(zip(title_list, price_list, city_list, time_list, date_list, href_list))
-		
+        writer.writerows(zip(id_list, title_list, price_list, city_list, time_list, date_list, href_list))
+
+def writesql():
+
+    serv = mysql.connector.connect(
+        host="10.80.132.132",
+        user="root",
+        passwd=password
+    )
+
+    servcursor = serv.cursor()
+
+    servcursor.execute("DROP DATABASE IF EXISTS moto;")
+    servcursor.execute("CREATE DATABASE moto")
+    servcursor.close()
+    serv.close()
+
+    motodb = mysql.connector.connect(
+        host="10.80.132.132",
+        user="root",
+        passwd=password,
+        database="moto"
+    )
+
+    motodbcursor = motodb.cursor()
+
+    motodbcursor.execute(
+        "CREATE TABLE items (idgen MEDIUMINT NOT NULL AUTO_INCREMENT, id VARCHAR(15), title VARCHAR(80)," 
+        "price VARCHAR(20), city VARCHAR(20), time VARCHAR(20),"
+        "date VARCHAR(20), url VARCHAR(120), PRIMARY KEY (idgen));")
+
+    add_data = "INSERT INTO items (id,title,price,city,time,date,url) VALUES (%s, %s, %s, %s, %s, %s, %s);"
+
+    for id, title, price, city, time, date, url in zip(id_list, title_list, price_list, city_list, time_list, date_list,
+                                                       href_list):
+        data = (id, title, price, 'NULL', time, 'NULL', url)
+        motodbcursor.execute(add_data, data)
+
+    motodb.commit()
+
 def main():
     genurl(totalpages(fullsoup(url)))
-    fillout()
-    writedata()
+    fillists()
+  #  writecsv()
+    writesql()
 
 if __name__ == "__main__":
     main()
