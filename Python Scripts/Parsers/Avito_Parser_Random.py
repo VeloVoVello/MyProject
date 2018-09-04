@@ -4,8 +4,9 @@
 import re
 import csv
 import sys
+import psycopg2
 import requests
-import mysql.connector
+# import mysql.connector
 from bs4 import BeautifulSoup
 
 password = input('Password: ')
@@ -91,13 +92,14 @@ def writecsv():
         writer = csv.writer(f)
         writer.writerow(fieldnames)
         writer.writerows(zip(id_list, title_list, price_list, city_list, time_list, date_list, href_list))
-
+"""
 def writesql():
 
-    serv = mysql.connector.connect(
-        host="10.80.132.132",
+    serv = psycopg2.connect(
+        dbname='postgres',
+        host="localhost",
         user="root",
-        passwd=password
+        password=password
     )
 
     servcursor = serv.cursor()
@@ -107,11 +109,11 @@ def writesql():
     servcursor.close()
     serv.close()
 
-    motodb = mysql.connector.connect(
-        host="10.80.132.132",
+    motodb = psycopg2.connect(
+        dbname='moto',
+        host="localhost",
         user="root",
-        passwd=password,
-        database="moto"
+        password=password,
     )
 
     motodbcursor = motodb.cursor()
@@ -130,11 +132,45 @@ def writesql():
 
     motodb.commit()
 
+"""
+
+def writepostgre():
+
+    conn = psycopg2.connect(
+        dbname='moto',
+        host="10.80.132.132",
+        user="moto",
+        password=password
+    )
+
+    cur = conn.cursor()
+    cur.execute("DROP TABLE IF EXISTS items;")
+    cur.execute("CREATE TABLE items (id VARCHAR(30),title VARCHAR(100), price VARCHAR(10), city VARCHAR(30), time VARCHAR(30), date VARCHAR(30), url VARCHAR(150));")
+    add_data = "INSERT INTO items (id,title,price,city,time,date,url) VALUES (%s, %s, %s, %s, %s, %s, %s);"
+
+    for id, title, price, city, time, date, url in zip(id_list,
+                                                       title_list,
+                                                       price_list,
+                                                       city_list,
+                                                       time_list,
+                                                       date_list,
+                                                       href_list):
+        data = (id, title, price, 'NULL', time, 'NULL', url)
+        cur.execute(add_data, data)
+
+    conn.commit()
+    cur.execute("SELECT * FROM items;")
+    rows = cur.fetchall()
+    print("\nShow me the databases:\n")
+    for row in rows:
+        print("   ", row[0])
+
+
 def main():
     genurl(totalpages(fullsoup(url)))
     fillists()
   #  writecsv()
-    writesql()
+    writepostgre()
 
 if __name__ == "__main__":
     main()
